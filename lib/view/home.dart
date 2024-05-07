@@ -209,6 +209,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     placeController.update(['Filter-chips']);
                   },
                   onFieldSubmitted: (value) async {
+                    selectedCountry = null;
+                    countryCode = null;
+                    selectedChip = 0;
                     await searchLocation(value);
                     findPlaces(value);
                   },
