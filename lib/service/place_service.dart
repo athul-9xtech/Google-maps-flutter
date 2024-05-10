@@ -6,7 +6,12 @@ class PlaceService {
   final Dio dio = Dio();
 
   Future<PlacesResponse> fetchPlaces(String query,
-      {String? countryCode}) async {
+      {String? countryCode, String? state, String? city}) async {
+    if (city != null) {
+      query += city;
+    } else if (state != null) {
+      query += state;
+    }
     final url = '${apiBaseUrl}textsearch/json?query=$query&key=$apitoken';
 
     try {

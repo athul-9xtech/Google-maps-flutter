@@ -6,11 +6,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
+import 'package:google_map/controller/csc_controller.dart';
 import 'package:google_map/controller/location_controller.dart';
 import 'package:google_map/controller/place_controller.dart';
+import 'package:google_map/model/places_model.dart' as place_model;
 import 'package:google_map/service/place_service.dart';
+import 'package:google_map/view/widgets/filter_dropdown_btn.dart';
 import 'package:google_map/view/widgets/places_listview.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:country_state_city/country_state_city.dart' as csc;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,13 +26,12 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final placeController = Get.put(PlaceController());
   final locationController = Get.put(LocationController());
+  final cscController = Get.put(CscController());
   final searchController = TextEditingController();
   GoogleMapController? _controller;
   final Set<Marker> _markers = {};
   bool isLocationFound = false;
   int selectedChip = 0;
-  String? countryCode;
-  String? selectedCountry;
   ValueNotifier<bool> isLoading = ValueNotifier<bool>(false);
 
   Future<void> searchLocation(String query) async {
@@ -75,16 +78,45 @@ class _HomeScreenState extends State<HomeScreen> {
           infoWindow: InfoWindow(
             title: place.name,
           ),
+          onTap: () => onMarkerTapped(place),
         ),
       );
     }
   }
 
-  Future<void> findPlaces(String query, {String? countryCode}) async {
+  void onMarkerTapped(place_model.PlaceResult place) {
+    _markers.clear();
+    _markers.add(
+      Marker(
+        markerId: MarkerId(place.name),
+        position:
+            LatLng(place.geometry.location.lat, place.geometry.location.lng),
+        infoWindow: InfoWindow(
+          title: place.name,
+        ),
+      ),
+    );
+    if (placeController.placesData != null &&
+        placeController.placesData!.results != null) {
+      placeController.placesData!.results!.clear();
+      placeController.placesData!.results!.add(place);
+    }
+    LatLng latLng =
+        LatLng(place.geometry.location.lat, place.geometry.location.lng);
+    _controller!.animateCamera(CameraUpdate.newLatLngZoom(latLng, 12));
+    setState(() {});
+  }
+
+  Future<void> findPlaces(String query,
+      {String? countryCode, String? stateName, String? city}) async {
     isLoading.value = true;
     // find places
-    placeController.placesData =
-        await PlaceService().fetchPlaces(query, countryCode: countryCode);
+    placeController.placesData = await PlaceService().fetchPlaces(
+      query,
+      countryCode: countryCode,
+      state: stateName,
+      city: city,
+    );
     isLoading.value = false;
 
     addMultipleMarker();
@@ -139,6 +171,16 @@ class _HomeScreenState extends State<HomeScreen> {
     isLoading.value = false;
   }
 
+  Future<void> stateCityEvent() async {
+    await searchLocation(searchController.text.trim());
+    findPlaces(
+      searchController.text.trim(),
+      countryCode: cscController.countryCode,
+      stateName: cscController.state?.name,
+      city: cscController.city?.name,
+    );
+  }
+
   InputChip _buildFilterChip(int buttonIdx, String label, bool isSelected) {
     return InputChip(
       selected: isSelected,
@@ -151,8 +193,10 @@ class _HomeScreenState extends State<HomeScreen> {
       onPressed: () async {
         if (isSelected) {
           selectedChip = 0;
-          countryCode = null;
-          selectedCountry = null;
+          cscController.countryCode = null;
+          cscController.selectedCountry = null;
+          cscController.state = null;
+          cscController.city = null;
           await searchLocation(searchController.text.trim());
           findPlaces(searchController.text.trim());
         } else {
@@ -163,11 +207,43 @@ class _HomeScreenState extends State<HomeScreen> {
                 await locationController.handleLocationPermission();
             if (hasPermission) selectedChip = buttonIdx;
           } else {
-            openCountryPicker(); // show country pick sheet
+            selectedChip = buttonIdx;
+            await searchLocation(searchController.text.trim());
+            findPlaces(searchController.text.trim());
           }
         }
         placeController.update(['Filter-chips']);
       },
+    );
+  }
+
+  GestureDetector _buildCoutryChip(bool isSelected, String label) {
+    return GestureDetector(
+      onTap: () => openCountryPicker(), // show country pick sheet,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? Colors.blue : Colors.grey.shade400,
+          ),
+        ),
+        child: Row(
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Colors.blue : Colors.black,
+              ),
+            ),
+            const SizedBox(width: 5),
+            Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: isSelected ? Colors.blue : Colors.black,
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -181,12 +257,17 @@ class _HomeScreenState extends State<HomeScreen> {
         inputDecoration: countryPickerInputDecoration(),
       ),
       onSelect: (Country country) async {
-        countryCode = country.countryCode;
-        selectedCountry = country.displayNameNoCountryCode;
+        cscController.countryCode = country.countryCode;
+        cscController.selectedCountry = country.displayNameNoCountryCode;
+        cscController.state = null;
+        cscController.city = null;
         selectedChip = 2;
         placeController.update(['Filter-chips']);
         await searchLocation(searchController.text.trim());
-        findPlaces(searchController.text.trim(), countryCode: countryCode);
+        findPlaces(
+          searchController.text.trim(),
+          countryCode: cscController.countryCode,
+        );
       },
     );
   }
@@ -209,8 +290,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     placeController.update(['Filter-chips']);
                   },
                   onFieldSubmitted: (value) async {
-                    selectedCountry = null;
-                    countryCode = null;
+                    cscController.selectedCountry = null;
+                    cscController.countryCode = null;
+                    cscController.state = null;
+                    cscController.city = null;
                     selectedChip = 0;
                     await searchLocation(value);
                     findPlaces(value);
@@ -226,15 +309,92 @@ class _HomeScreenState extends State<HomeScreen> {
                   return Visibility(
                     visible: searchController.text.isNotEmpty &&
                         isLocationFound == false,
-                    child: Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(width: 10),
-                        _buildFilterChip(1, 'Nearby', selectedChip == 1),
-                        const SizedBox(width: 10),
-                        _buildFilterChip(
-                          2,
-                          selectedCountry ?? 'Worldwide',
-                          selectedChip == 2,
+                        Row(
+                          children: [
+                            const SizedBox(width: 10),
+                            _buildFilterChip(1, 'Nearby', selectedChip == 1),
+                            const SizedBox(width: 10),
+                            _buildFilterChip(2, 'Worldwide', selectedChip == 2),
+                          ],
+                        ),
+                        Visibility(
+                          // only visible if selected worldwide chip
+                          visible: selectedChip == 2,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                const SizedBox(width: 10),
+                                _buildCoutryChip(
+                                  cscController.selectedCountry != null,
+                                  cscController.selectedCountry ?? 'Country',
+                                ),
+                                if (cscController.countryCode != null)
+                                  FutureBuilder(
+                                    future: csc.getStatesOfCountry(
+                                        cscController.countryCode!),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return const SizedBox();
+                                      } else if (snapshot.data != null &&
+                                          snapshot.hasData) {
+                                        List<csc.State> states = snapshot.data!;
+                                        return FilterDropDownButton(
+                                          hintText: 'State',
+                                          states: states,
+                                          onTapEvent: stateCityEvent,
+                                        );
+                                      } else {
+                                        return const SizedBox();
+                                      }
+                                    },
+                                  ),
+                                GetBuilder<CscController>(
+                                  id: 'city-dropdown',
+                                  builder: (controller) {
+                                    if (cscController.countryCode != null &&
+                                        cscController.state != null) {
+                                      return FutureBuilder(
+                                        future:
+                                            // cscController.state != null
+                                            //     ?
+                                            csc.getStateCities(
+                                                cscController.countryCode!,
+                                                cscController.state!.isoCode),
+
+                                        // :
+                                        // csc.getCountryCities(
+                                        //     cscController.countryCode!),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.connectionState ==
+                                              ConnectionState.waiting) {
+                                            return const SizedBox();
+                                          } else if (snapshot.data != null &&
+                                              snapshot.hasData) {
+                                            List<csc.City> cities =
+                                                snapshot.data!;
+                                            return FilterDropDownButton(
+                                              hintText: 'City',
+                                              cities: cities,
+                                              onTapEvent: stateCityEvent,
+                                            );
+                                          } else {
+                                            return const SizedBox();
+                                          }
+                                        },
+                                      );
+                                    } else {
+                                      return const SizedBox();
+                                    }
+                                  },
+                                )
+                              ],
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -314,7 +474,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 )
               : InkWell(
-                  onTap: () => searchLocation(searchController.text.trim()),
+                  onTap: () async {
+                    await searchLocation(searchController.text.trim());
+                    findPlaces(searchController.text.trim());
+                  },
                   child: const Icon(CupertinoIcons.search, size: 21),
                 );
         },
