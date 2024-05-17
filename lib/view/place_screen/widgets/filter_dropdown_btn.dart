@@ -2,20 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:country_state_city/country_state_city.dart' as csc;
 import 'package:get/get.dart';
 import 'package:google_map/controller/csc_controller.dart';
+import 'package:google_map/utils/app_colors.dart';
 
 class FilterDropDownButton extends StatefulWidget {
-  const FilterDropDownButton({
-    super.key,
-    required this.hintText,
-    this.states,
-    this.cities,
-    this.onTapEvent,
-  });
+  const FilterDropDownButton(
+      {super.key, required this.hintText, this.states, this.cities});
 
   final String hintText;
   final List<csc.State>? states;
   final List<csc.City>? cities;
-  final VoidCallback? onTapEvent;
 
   @override
   State<FilterDropDownButton> createState() => _FilterDropDownButtonState();
@@ -27,12 +22,24 @@ class _FilterDropDownButtonState extends State<FilterDropDownButton> {
 
   @override
   void initState() {
+    initSelectedItem();
+    super.initState();
+  }
+
+  @override
+  void didUpdateWidget(covariant FilterDropDownButton oldWidget) {
+    initSelectedItem();
+    super.didUpdateWidget(oldWidget);
+  }
+
+  void initSelectedItem() {
     if (widget.states != null && cscController.state != null) {
       selectedItem = cscController.state!.name;
     } else if (widget.cities != null && cscController.city != null) {
       selectedItem = cscController.city!.name;
+    } else {
+      selectedItem = null;
     }
-    super.initState();
   }
 
   @override
@@ -47,27 +54,34 @@ class _FilterDropDownButtonState extends State<FilterDropDownButton> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: selectedItem != null ? Colors.blue : Colors.grey.shade400,
+              color: selectedItem != null
+                  ? AppColors().primaryOrange
+                  : Colors.grey.shade400,
             ),
           ),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 selectedItem ?? widget.hintText,
                 style: TextStyle(
-                  color: selectedItem != null ? Colors.blue : Colors.black,
+                  color: selectedItem != null
+                      ? AppColors().primaryOrange
+                      : Colors.black,
                 ),
               ),
-              const SizedBox(width: 5),
               Icon(
                 Icons.keyboard_arrow_down_rounded,
-                color: selectedItem != null ? Colors.blue : Colors.black,
+                color: selectedItem != null
+                    ? AppColors().primaryOrange
+                    : Colors.black,
               ),
             ],
           ),
         ),
         offset: const Offset(0, 55),
         surfaceTintColor: Colors.transparent,
+        padding: EdgeInsets.zero,
         constraints:
             BoxConstraints(maxHeight: MediaQuery.of(context).size.height / 2),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -85,7 +99,7 @@ class _FilterDropDownButtonState extends State<FilterDropDownButton> {
                         style: TextStyle(
                           fontSize: 12,
                           color: value.name == selectedItem
-                              ? Colors.blue
+                              ? AppColors().primaryOrange
                               : Colors.black,
                         ),
                       ),
@@ -103,7 +117,7 @@ class _FilterDropDownButtonState extends State<FilterDropDownButton> {
                         style: TextStyle(
                           fontSize: 12,
                           color: value.name == selectedItem
-                              ? Colors.blue
+                              ? AppColors().primaryOrange
                               : Colors.black,
                         ),
                       ),
@@ -121,7 +135,6 @@ class _FilterDropDownButtonState extends State<FilterDropDownButton> {
             cscController.city = value;
           }
           setState(() {});
-          widget.onTapEvent?.call(); // --
         },
       ),
     );

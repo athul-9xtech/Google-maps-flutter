@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -37,5 +38,28 @@ commonSnackbar(
     snackPosition: snackPosition ?? SnackPosition.TOP,
     backgroundColor: bgColor,
     animationDuration: const Duration(milliseconds: 500),
+  );
+}
+
+InputDecoration countryPickerInputDecoration() {
+  return InputDecoration(
+    isDense: true,
+    hintText: 'Search',
+    prefixIcon: const Icon(CupertinoIcons.search, size: 21),
+    contentPadding: const EdgeInsets.symmetric(
+      vertical: 0,
+      horizontal: 20,
+    ),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(100),
+      borderSide: BorderSide(color: Colors.grey.shade400),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(100),
+      borderSide: BorderSide(color: Colors.grey.shade400),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(100),
+    ),
   );
 }

@@ -44,6 +44,8 @@ dependencies:
   country_picker: ^2.0.23
   url_launcher: ^6.2.4
   country_state_city: ^0.1.6
+  google_fonts: 5.1.0
+  shimmer: 3.0.0
 
 dev_dependencies:
   flutter_test:
