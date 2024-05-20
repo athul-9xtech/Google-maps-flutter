@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:google_map/controller/place_controller.dart';
 import 'package:google_map/service/place_service.dart';
 import 'package:google_map/utils/app_colors.dart';
@@ -27,10 +26,16 @@ class PlacesGridview extends StatelessWidget {
           final place = placeController.placesData!.results![index];
 
           return InkWell(
-            onTap: () => Get.to(
-              () => MapScreen(place: place),
-              transition: Transition.rightToLeft,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MapScreen(place: place),
+              ),
             ),
+            // Get.to(
+            //   () => MapScreen(place: place),
+            //   transition: Transition.rightToLeft,
+            // ),
             child: SizedBox(
               child: Column(
                 children: [

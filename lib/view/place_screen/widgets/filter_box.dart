@@ -34,7 +34,7 @@ class _FilterBoxState extends State<FilterBox> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              cscController.selectedCountry ?? 'country',
+              cscController.selectedCountry ?? 'Country',
               style: TextStyle(
                 color: cscController.selectedCountry != null
                     ? AppColors().primaryOrange
@@ -152,7 +152,7 @@ class _FilterBoxState extends State<FilterBox> {
     if (cscController.selectedCountry != null ||
         cscController.state != null ||
         cscController.city != null) {
-      Get.back(); // close filter pop up
+      Navigator.pop(context); // close filter pop up
 
       await placeController.findPlaces(
         'Gurudwara',
@@ -196,7 +196,7 @@ class _FilterBoxState extends State<FilterBox> {
                 const SizedBox(height: 25),
 
                 //* ::::::::::::: Search Button :::::::::::::
-                _buildSearchButton(),
+                Center(child: _buildSearchButton()),
               ],
             ),
           );

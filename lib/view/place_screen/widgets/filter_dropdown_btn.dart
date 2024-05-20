@@ -91,7 +91,7 @@ class _FilterDropDownButtonState extends State<FilterDropDownButton> {
                   .map<PopupMenuEntry<csc.State>>((csc.State value) {
                   return PopupMenuItem<csc.State>(
                     value: value,
-                    padding: EdgeInsets.zero,
+                    //padding: EdgeInsets.zero,
                     child: ListTile(
                       dense: true,
                       title: Text(
