@@ -91,7 +91,7 @@ class _FilterDropDownButtonState extends State<FilterDropDownButton> {
                   .map<PopupMenuEntry<csc.State>>((csc.State value) {
                   return PopupMenuItem<csc.State>(
                     value: value,
-                    //padding: EdgeInsets.zero,
+                    //padding: EdgeInsets.all(16),
                     child: ListTile(
                       dense: true,
                       title: Text(
@@ -109,7 +109,7 @@ class _FilterDropDownButtonState extends State<FilterDropDownButton> {
               : widget.cities!.map<PopupMenuEntry<csc.City>>((csc.City value) {
                   return PopupMenuItem<csc.City>(
                     value: value,
-                    padding: EdgeInsets.zero,
+                    //padding: EdgeInsets.zero,
                     child: ListTile(
                       dense: true,
                       title: Text(
