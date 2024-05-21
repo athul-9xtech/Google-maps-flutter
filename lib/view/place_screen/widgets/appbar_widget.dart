@@ -11,8 +11,16 @@ class AppbarWidget extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
+        InkWell(
+          customBorder: const CircleBorder(),
+          onTap: () => Navigator.pop(context),
+          child: Icon(
+            Icons.arrow_back_ios,
+            color: AppColors().darkOrange,
+            size: 20,
+          ),
+        ),
         Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Explore',

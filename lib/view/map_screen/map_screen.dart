@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:google_map/utils/app_colors.dart';
 import 'package:google_map/view/map_screen/widgets/place_details.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -51,7 +50,7 @@ class _MapScreenState extends State<MapScreen> {
         titleSpacing: 0,
         leading: InkWell(
           customBorder: const CircleBorder(),
-          onTap: () => Get.back(),
+          onTap: () => Navigator.pop(context),
           child: Icon(
             Icons.arrow_back_ios,
             color: AppColors().darkOrange,
