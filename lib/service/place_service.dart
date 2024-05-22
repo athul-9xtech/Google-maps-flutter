@@ -1,20 +1,31 @@
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
+import 'package:get/get.dart';
+import 'package:google_map/controller/place_controller.dart';
 import 'package:google_map/model/places_model.dart';
 import 'package:google_map/utils/constants.dart';
 
 class PlaceService {
   final Dio dio = Dio();
+  final placeController = Get.put(PlaceController());
 
   Future<PlacesResponse> fetchPlaces(String query,
-      {String? countryCode, String? state, String? city}) async {
+      {String? countryCode,
+      String? state,
+      String? city,
+      String? nextPageToken}) async {
+    placeController.lastFetchedApi = 'textSearch'; //
+
     if (city != null) {
-      query += city;
+      query += '+$city';
     } else if (state != null) {
-      query += state;
+      query += '+$state';
     }
-    final url = '${apiBaseUrl}textsearch/json?query=$query&key=$apitoken';
+    final url =
+        '${apiBaseUrl}textsearch/json?query=$query&key=$apitoken${nextPageToken != null ? '&pagetoken=$nextPageToken' : ''}';
+
+    log(url);
 
     try {
       final response = await dio.get(
@@ -35,8 +46,10 @@ class PlaceService {
 
   Future<PlacesResponse> nearbySearch(String query, String lat, String lng,
       {String? nextPageToken}) async {
+    placeController.lastFetchedApi = 'nearby'; //
+
     final url =
-        '${apiBaseUrl}nearbysearch/json?location=$lat,$lng&radius=50000&types=$query&keyword=$query&key=$apitoken';
+        '${apiBaseUrl}nearbysearch/json?location=$lat,$lng&radius=50000&types=$query&keyword=$query&key=$apitoken${nextPageToken != null ? '&pagetoken=$nextPageToken' : ''}';
     try {
       log(url);
       final response = await dio.get(url);

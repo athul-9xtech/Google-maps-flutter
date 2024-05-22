@@ -1,5 +1,5 @@
 class PlacesResponse {
-  final String? nextPageToken;
+  String? nextPageToken;
   final List<PlaceResult>? results;
 
   PlacesResponse({this.nextPageToken, required this.results});

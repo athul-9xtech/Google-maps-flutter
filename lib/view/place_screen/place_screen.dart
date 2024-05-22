@@ -57,7 +57,10 @@ class _PlaceScreenState extends State<PlaceScreen> {
                             placeController.placesData!.results!.isNotEmpty
 
                         // --▽ Gridview showing all places ▽--
-                        ? PlacesGridview(placeController: placeController)
+                        ? PlacesGridview(
+                            placeController: placeController,
+                            cscController: cscController,
+                          )
                         : Expanded(
                             child: Center(
                               child: Text(

@@ -8,6 +8,7 @@ import 'package:google_map/service/place_service.dart';
 class PlaceController extends GetxController {
   PlacesResponse? placesData;
   ValueNotifier<bool> isLoading = ValueNotifier<bool>(false);
+  String lastFetchedApi = ''; // 'textSearch', 'nearby'
 
   final locationController = Get.put(LocationController());
   final cscController = Get.put(CscController());
