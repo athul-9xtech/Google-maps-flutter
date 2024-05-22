@@ -59,7 +59,10 @@ class _FilterBoxState extends State<FilterBox> {
         future: csc.getStatesOfCountry(cscController.countryCode!),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const SizedBox();
+            return const FilterDropDownButton(
+              hintText: 'State',
+              states: [],
+            );
           } else if (snapshot.data != null && snapshot.hasData) {
             List<csc.State> states = snapshot.data!;
             return FilterDropDownButton(
