@@ -23,6 +23,7 @@ class PlaceController extends GetxController {
       city: city,
     );
     isLoading.value = false;
+    cscController.update(['breadcrumb']);
   }
 
   Future<void> nearbySearchEvent(String query) async {
@@ -55,5 +56,6 @@ class PlaceController extends GetxController {
       );
     }
     isLoading.value = false;
+    cscController.update(['breadcrumb']);
   }
 }

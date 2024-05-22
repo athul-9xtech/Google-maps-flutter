@@ -14,7 +14,7 @@ class PlacesGridview extends StatelessWidget {
     return Expanded(
       child: GridView.builder(
         shrinkWrap: true,
-        padding: const EdgeInsets.symmetric(vertical: 20),
+        //padding: const EdgeInsets.symmetric(vertical: 20),
         itemCount: placeController.placesData!.results!.length,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,

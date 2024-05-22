@@ -16,6 +16,7 @@ class FilterBox extends StatefulWidget {
 class _FilterBoxState extends State<FilterBox> {
   final cscController = Get.put(CscController());
   final placeController = Get.put(PlaceController());
+  bool isBuildCompleted = false;
 
   InkWell _buildCountryDropdown(PlaceController controller) {
     return InkWell(
@@ -86,7 +87,13 @@ class _FilterBoxState extends State<FilterBox> {
     return GetBuilder<CscController>(
       id: 'city-dropdown',
       builder: (controller) {
-        if (cscController.countryCode != null && cscController.state != null) {
+        if (isBuildCompleted == false) {
+          return const FilterDropDownButton(
+            hintText: 'City',
+            cities: [],
+          );
+        } else if (cscController.countryCode != null &&
+            cscController.state != null) {
           return FutureBuilder(
             future:
                 // cscController.state != null
@@ -168,6 +175,15 @@ class _FilterBoxState extends State<FilterBox> {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      Future.delayed(
+        const Duration(milliseconds: 250),
+        () {
+          isBuildCompleted = true;
+          cscController.update(['city-dropdown']);
+        },
+      );
+    });
     return Dialog(
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,

@@ -68,6 +68,10 @@ class PlaceDetailsWidget extends StatelessWidget {
                       place.name,
                       style: const TextStyle(fontSize: 18),
                     ),
+                    if (place.formattedAddress != null)
+                      const SizedBox(height: 2),
+                    if (place.formattedAddress != null)
+                      Text(place.formattedAddress!),
                     const SizedBox(height: 2),
                     place.rating != null && place.rating != 0
                         ? Row(

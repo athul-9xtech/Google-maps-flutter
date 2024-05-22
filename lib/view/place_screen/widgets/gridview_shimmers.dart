@@ -12,7 +12,7 @@ class PlaceGridviewShimmers extends StatelessWidget {
       highlightColor: AppColors().greyColor.shade100,
       child: GridView.builder(
         shrinkWrap: true,
-        padding: const EdgeInsets.symmetric(vertical: 20),
+        //padding: const EdgeInsets.symmetric(vertical: 20),
         physics: const NeverScrollableScrollPhysics(),
         itemCount: 30,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

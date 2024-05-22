@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_map/controller/csc_controller.dart';
 import 'package:google_map/controller/place_controller.dart';
 import 'package:google_map/utils/app_colors.dart';
 import 'package:google_map/view/place_screen/widgets/appbar_widget.dart';
@@ -15,9 +16,14 @@ class PlaceScreen extends StatefulWidget {
 
 class _PlaceScreenState extends State<PlaceScreen> {
   final placeController = Get.put(PlaceController());
+  final cscController = Get.put(CscController());
 
   @override
   void initState() {
+    cscController.countryCode = null;
+    cscController.selectedCountry = null;
+    cscController.state = null;
+    cscController.city = null;
     fetchNearbyPlaces();
     super.initState();
   }

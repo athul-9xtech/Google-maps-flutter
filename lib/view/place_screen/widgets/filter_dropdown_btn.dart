@@ -130,11 +130,12 @@ class _FilterDropDownButtonState extends State<FilterDropDownButton> {
           if (widget.states != null) {
             cscController.state = value;
             cscController.city = null;
+            setState(() {});
             cscController.update(['city-dropdown']);
           } else {
             cscController.city = value;
+            setState(() {});
           }
-          setState(() {});
         },
       ),
     );

@@ -23,7 +23,7 @@ class CscController extends GetxController {
       ),
       onSelect: (Country country) async {
         countryCode = country.countryCode;
-        selectedCountry = country.displayNameNoCountryCode;
+        selectedCountry = country.name;
         state = null;
         city = null;
         placeController.update(['Filter-options']);

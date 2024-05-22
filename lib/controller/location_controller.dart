@@ -1,10 +1,16 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_map/utils/constants.dart';
 
 class LocationController extends GetxController {
   Position? currentPosition;
+  String? currentCountry;
+  String? currentState;
+  String? currentCity;
 
   Future<bool> handleLocationPermission() async {
     bool serviceEnabled;
@@ -58,9 +64,25 @@ class LocationController extends GetxController {
               desiredAccuracy: LocationAccuracy.high)
           .then((Position position) {
         currentPosition = position;
+        getAddressFromLatLng(position.latitude, position.longitude);
       }).catchError((e) {
         debugPrint(e);
       });
+    }
+  }
+
+  Future<void> getAddressFromLatLng(double latitude, double longitude) async {
+    try {
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(latitude, longitude);
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks[0];
+        currentCountry = place.country;
+        currentState = place.administrativeArea;
+        currentCity = place.locality;
+      }
+    } catch (e) {
+      log(e.toString());
     }
   }
 }
