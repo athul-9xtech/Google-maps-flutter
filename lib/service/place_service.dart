@@ -35,6 +35,17 @@ class PlaceService {
 
       if (response.statusCode == 200) {
         PlacesResponse placesResponse = PlacesResponse.fromJson(response.data);
+
+        // Filter the results based on the given criteria
+        placesResponse.results = placesResponse.results?.where((place) {
+          final types = place.types ?? [];
+          final isHinduTemple = types.contains('hindu_temple');
+          final isPlaceOfWorship = types.contains('place_of_worship');
+
+          return !isHinduTemple && isPlaceOfWorship;
+        }).toList();
+
+        // fetch images
         await fetchAndSetImageUrls(placesResponse.results);
         return placesResponse;
       } else {
@@ -58,6 +69,17 @@ class PlaceService {
 
       if (response.statusCode == 200) {
         PlacesResponse placesResponse = PlacesResponse.fromJson(response.data);
+
+        // Filter the results based on the given criteria
+        placesResponse.results = placesResponse.results?.where((place) {
+          final types = place.types ?? [];
+          final isHinduTemple = types.contains('hindu_temple');
+          final isPlaceOfWorship = types.contains('place_of_worship');
+
+          return !isHinduTemple && isPlaceOfWorship;
+        }).toList();
+
+        // fetch images
         await fetchAndSetImageUrls(placesResponse.results);
         return placesResponse;
       } else {
