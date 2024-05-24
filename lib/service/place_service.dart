@@ -34,7 +34,9 @@ class PlaceService {
       );
 
       if (response.statusCode == 200) {
-        return PlacesResponse.fromJson(response.data);
+        PlacesResponse placesResponse = PlacesResponse.fromJson(response.data);
+        await fetchAndSetImageUrls(placesResponse.results);
+        return placesResponse;
       } else {
         throw Exception(
             'Failed to fetch places. Status code: ${response.statusCode}');
@@ -55,7 +57,9 @@ class PlaceService {
       final response = await dio.get(url);
 
       if (response.statusCode == 200) {
-        return PlacesResponse.fromJson(response.data);
+        PlacesResponse placesResponse = PlacesResponse.fromJson(response.data);
+        await fetchAndSetImageUrls(placesResponse.results);
+        return placesResponse;
       } else {
         throw Exception(
             'Failed to fetch places. Status code: ${response.statusCode}');
@@ -92,6 +96,24 @@ class PlaceService {
     } catch (e) {
       log('Error: $e');
       throw Exception('Failed to load photo');
+    }
+  }
+
+  Future<void> fetchAndSetImageUrls(List<PlaceResult>? places) async {
+    if (places == null) return;
+
+    for (var place in places) {
+      if (place.photos != null && place.photos!.isNotEmpty) {
+        place.imageUrls = [];
+        for (var photo in place.photos!) {
+          try {
+            String imageUrl = await getPhotoUrl(photo.photoReference!);
+            place.imageUrls!.add(imageUrl);
+          } catch (e) {
+            log('Failed to fetch image URL: $e');
+          }
+        }
+      }
     }
   }
 }

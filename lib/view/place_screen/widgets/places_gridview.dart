@@ -21,8 +21,12 @@ class PlacesGridview extends StatefulWidget {
 
 class _PlacesGridviewState extends State<PlacesGridview> {
   final locationController = Get.put(LocationController());
+  bool isLoading = false;
 
   Future<void> fetchPlacesWithNextToken() async {
+    setState(() {
+      isLoading = true;
+    });
     PlacesResponse placesData;
     if (widget.placeController.lastFetchedApi == 'nearby') {
       placesData = await PlaceService().nearbySearch(
@@ -46,7 +50,9 @@ class _PlacesGridviewState extends State<PlacesGridview> {
       widget.placeController.placesData!.nextPageToken =
           placesData.nextPageToken;
 
-      setState(() {});
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -55,7 +61,8 @@ class _PlacesGridviewState extends State<PlacesGridview> {
     return Expanded(
       child: NotificationListener<ScrollNotification>(
         onNotification: (ScrollNotification scrollInfo) {
-          if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+          if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent &&
+              isLoading == false) {
             if (widget.placeController.placesData!.nextPageToken != null) {
               fetchPlacesWithNextToken();
             }
@@ -65,7 +72,8 @@ class _PlacesGridviewState extends State<PlacesGridview> {
         child: GridView.builder(
           shrinkWrap: true,
           //padding: const EdgeInsets.symmetric(vertical: 20),
-          itemCount: widget.placeController.placesData!.results!.length,
+          itemCount: widget.placeController.placesData!.results!.length +
+              (isLoading ? 1 : 0),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
             mainAxisSpacing: 12,
@@ -73,6 +81,19 @@ class _PlacesGridviewState extends State<PlacesGridview> {
             childAspectRatio: 0.9,
           ),
           itemBuilder: (context, index) {
+            if (index == widget.placeController.placesData!.results!.length) {
+              return Center(
+                child: SizedBox(
+                  height: 25,
+                  width: 25,
+                  child: CircularProgressIndicator(
+                    color: AppColors().darkOrange,
+                    strokeWidth: 2.3,
+                  ),
+                ),
+              );
+            }
+
             final place = widget.placeController.placesData!.results![index];
 
             return InkWell(
@@ -82,10 +103,6 @@ class _PlacesGridviewState extends State<PlacesGridview> {
                   builder: (context) => MapScreen(place: place),
                 ),
               ),
-              // Get.to(
-              //   () => MapScreen(place: place),
-              //   transition: Transition.rightToLeft,
-              // ),
               child: SizedBox(
                 child: Column(
                   children: [
@@ -98,38 +115,52 @@ class _PlacesGridviewState extends State<PlacesGridview> {
                           color: AppColors().greyColor.shade200,
                           borderRadius: BorderRadius.circular(5),
                         ),
-                        child: place.photos != null &&
-                                place.photos![0].photoReference != null
-                            ? FutureBuilder(
-                                future: PlaceService().getPhotoUrl(
-                                  place.photos![0].photoReference!,
-                                  maxWidth: place.photos![0].width,
+                        child: place.imageUrls != null &&
+                                place.imageUrls!.isNotEmpty
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(5),
+                                child: Image.network(
+                                  place.imageUrls![0],
+                                  fit: BoxFit.cover,
                                 ),
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return const SizedBox();
-                                  } else if (snapshot.hasData &&
-                                      snapshot.data != null) {
-                                    return ClipRRect(
-                                      borderRadius: BorderRadius.circular(5),
-                                      child: Image.network(
-                                        snapshot.data!,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    );
-                                  } else {
-                                    return const Icon(
-                                      Icons.image_not_supported_rounded,
-                                      color: Colors.amber,
-                                    );
-                                  }
-                                })
+                              )
                             : const Icon(
                                 Icons.image_not_supported_rounded,
                                 color: Colors.white,
                                 size: 30,
                               ),
+                        // place.photos != null &&
+                        //         place.photos![0].photoReference != null
+                        //     ? FutureBuilder(
+                        //         future: PlaceService().getPhotoUrl(
+                        //           place.photos![0].photoReference!,
+                        //           maxWidth: place.photos![0].width,
+                        //         ),
+                        //         builder: (context, snapshot) {
+                        //           if (snapshot.connectionState ==
+                        //               ConnectionState.waiting) {
+                        //             return const SizedBox();
+                        //           } else if (snapshot.hasData &&
+                        //               snapshot.data != null) {
+                        //             return ClipRRect(
+                        //               borderRadius: BorderRadius.circular(5),
+                        //               child: Image.network(
+                        //                 snapshot.data!,
+                        //                 fit: BoxFit.cover,
+                        //               ),
+                        //             );
+                        //           } else {
+                        //             return const Icon(
+                        //               Icons.image_not_supported_rounded,
+                        //               color: Colors.amber,
+                        //             );
+                        //           }
+                        //         })
+                        //     : const Icon(
+                        //         Icons.image_not_supported_rounded,
+                        //         color: Colors.white,
+                        //         size: 30,
+                        //       ),
                       ),
                     ),
                     const SizedBox(height: 5),

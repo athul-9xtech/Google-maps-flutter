@@ -24,6 +24,7 @@ class PlaceResult {
   final String name;
   final OpeningHours? openingHours;
   final List<Photos>? photos;
+  List<String>? imageUrls;
   final String placeId;
   final PlusCode? plusCode;
   final double? rating;
@@ -41,6 +42,7 @@ class PlaceResult {
     required this.name,
     this.openingHours,
     this.photos,
+    this.imageUrls,
     required this.placeId,
     this.plusCode,
     this.rating,

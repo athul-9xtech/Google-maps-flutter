@@ -18,43 +18,27 @@ class PlaceDetailsWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // <<<<<<<< Place images section >>>>>>>>>>
-          place.photos != null && place.photos![0].photoReference != null
-              ? FutureBuilder(
-                  future: fetchImagesOfPlace(place.photos!),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator(
-                        strokeWidth: 3.5,
-                        color: AppColors().primaryOrange,
-                      );
-                    } else if (snapshot.data != null &&
-                        snapshot.data!.isNotEmpty) {
-                      List<String> images = snapshot.data!;
-                      return SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: List.generate(
-                            images.length,
-                            (index) => Container(
-                              margin: const EdgeInsets.only(right: 10),
-                              height: 135,
-                              width: 145,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: NetworkImage(images[index]),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    } else {
-                      return const SizedBox();
-                    }
-                  })
-              : const SizedBox(),
+          if (place.imageUrls != null)
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: List.generate(
+                  place.imageUrls!.length,
+                  (index) => Container(
+                    margin: const EdgeInsets.only(right: 10),
+                    height: 135,
+                    width: 145,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      image: DecorationImage(
+                        fit: BoxFit.cover,
+                        image: NetworkImage(place.imageUrls![index]),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           const SizedBox(height: 10),
 
           // <<<<<<<<< Place details Section >>>>>>>>>>
